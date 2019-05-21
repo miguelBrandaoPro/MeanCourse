@@ -2,11 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-
-import { Post } from './post.model';
 import { Router } from '@angular/router';
-import { RepositionScrollStrategy } from '@angular/cdk/overlay';
 
+import { environment } from '../../environments/environment';
+import { Post } from './post.model';
+
+const BACKEND_URL = environment.apiUrl + '/posts/';
 
 @Injectable({providedIn: 'root'})
 export class PostsService {
@@ -18,7 +19,7 @@ export class PostsService {
   getPosts(postsPerPage: number, currentPage: number) {
     const queryParams = `?pagesize=${postsPerPage}&page=${currentPage}`;
     this.http
-      .get<{message: string, posts: any, maxPosts: number}>('http://127.0.0.1:3000/api/posts' + queryParams)
+      .get<{message: string, posts: any, maxPosts: number}>(BACKEND_URL + queryParams)
       .pipe(
         map((postData) => {
           return {
@@ -53,7 +54,7 @@ export class PostsService {
         content: string,
         imagePath: string,
         creator: string
-       }>('http://127.0.0.1:3000/api/posts/' + id);
+       }>(BACKEND_URL + id);
   }
 
   updatePost(id: string, title: string, content: string, image: File | string) {
@@ -75,7 +76,7 @@ export class PostsService {
       };
     }
     this.http
-      .put('http://127.0.0.1:3000/api/posts/' + id, postData)
+      .put(BACKEND_URL + id, postData)
       .subscribe(response => {
         this.router.navigate(['/']);
       });
@@ -88,7 +89,7 @@ export class PostsService {
     postData.append('image', image, title);
     this.http
       .post<{ message: string, post: Post }>(
-        'http://127.0.0.1:3000/api/posts',
+        BACKEND_URL,
         postData
       )
       .subscribe((responseData) => {
@@ -97,6 +98,6 @@ export class PostsService {
   }
 
   deletePost(postId: string) {
-    return this.http.delete<{message: string}>('http://127.0.0.1:3000/api/posts/' + postId);
+    return this.http.delete<{message: string}>(BACKEND_URL + postId);
   }
 }
